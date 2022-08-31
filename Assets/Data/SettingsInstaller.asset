@@ -12,3 +12,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d6fac373fd6844e47a97e84ea3e380b0, type: 3}
   m_Name: SettingsInstaller
   m_EditorClassIdentifier: 
+  _gameSettings:
+    _playerMoveSpeed: 5
+    _playerRotationSpeed: 5

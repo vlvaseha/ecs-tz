@@ -1,22 +1,22 @@
 using Leopotam.EcsLite;
-using UnityEngine;
 
 namespace Systems
 {
-    public class InputSystem : IEcsRunSystem, IEcsInitSystem
+    public class InputSystem : IEcsRunSystem
     {
-        private EcsWorld _world;
-
-        public void Init(IEcsSystems systems)
+        private readonly IInputService _inputService;
+        
+        public InputSystem(IInputService inputService)
         {
-            _world = systems.GetWorld();
+            _inputService = inputService;
         }
 
         public void Run(IEcsSystems systems)
         {
-            if (Input.GetKeyDown(KeyCode.Space))
+            if (_inputService.GetClick())
             {
-                Debug.Log("space pressed: " + (_world == null));
+                var onClickPool = systems.GetWorld().GetPool<OnClickedTag>();
+                onClickPool.Add(systems.GetWorld().NewEntity());
             }
         }
     }

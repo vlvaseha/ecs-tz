@@ -1,34 +1,56 @@
+using System.Security.Cryptography;
 using Systems;
 using Leopotam.EcsLite;
 using UnityEngine;
+using Zenject;
 
 public class EcsStartup : MonoBehaviour
 { 
-	private EcsWorld _world;
-	private EcsSystems _systems;
+	private IEcsSystems _initSystem;
+	private IEcsSystems _updateSystem;
+
+	[Inject] private EcsWorld _world;
+	[Inject] private GameSettings _settings;
 
 	private void Start()
 	{
-		_world = new EcsWorld();
-		_systems = new EcsSystems(_world);
-
-		_systems.Add(new InputSystem());
+		_initSystem = new EcsSystems(_world, "InitSystem");
+		_updateSystem = new EcsSystems(_world, "UpdateSystem");
 		
-		_systems
+		_initSystem
+			.Add(new PlayerInitSystem())
 			.Init();
+
+		var camera = Camera.main.transform;
+		var player = GameObject.CreatePrimitive(PrimitiveType.Capsule);
+		player.transform.position = Vector3.zero;
+
+		_updateSystem
+			.Add(new InputSystem(new StandaloneInput()))
+			.Add(new PlayerPositionCalculationSystem(new PlayerPositionCalculator(Camera.main)))
+			.Add(new MovementSystem(new ObjectMover(player.transform), 2f))
+			.Add(new FollowerSystem(new ObjectMover(camera), new ObjectMover(player.transform), 5f))
+			.Init();
+		
 	}
 
 	private void Update()
 	{
-		_systems?.Run();
+		_updateSystem?.Run();
 	}
 
 	private void OnDestroy()
 	{
-		if (_systems != null)
+		if (_initSystem != null)
 		{
-			_systems.Destroy();
-			_systems = null;
+			_initSystem.Destroy();
+			_initSystem = null;
+		}
+		
+		if (_updateSystem != null)
+		{
+			_updateSystem.Destroy();
+			_updateSystem = null;
 		}
 
 		if (_world != null)
