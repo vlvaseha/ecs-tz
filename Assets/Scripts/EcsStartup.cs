@@ -1,4 +1,3 @@
-using System.Security.Cryptography;
 using Systems;
 using Leopotam.EcsLite;
 using UnityEngine;
@@ -6,7 +5,6 @@ using Zenject;
 
 public class EcsStartup : MonoBehaviour
 { 
-	private IEcsSystems _initSystem;
 	private IEcsSystems _updateSystem;
 
 	[Inject] private EcsWorld _world;
@@ -14,24 +12,22 @@ public class EcsStartup : MonoBehaviour
 
 	private void Start()
 	{
-		_initSystem = new EcsSystems(_world, "InitSystem");
 		_updateSystem = new EcsSystems(_world, "UpdateSystem");
-		
-		_initSystem
-			.Add(new PlayerInitSystem())
-			.Init();
 
 		var camera = Camera.main.transform;
-		var player = GameObject.CreatePrimitive(PrimitiveType.Capsule);
+		var player = GameObject.Find("X Bot");
 		player.transform.position = Vector3.zero;
 
 		_updateSystem
+			.Add(new PlayerInitSystem())
 			.Add(new InputSystem(new StandaloneInput()))
-			.Add(new PlayerPositionCalculationSystem(new PlayerPositionCalculator(Camera.main)))
+			.Add(new PlayerPositionCalculationSystem(new PlayerPositionCalculator(Camera.main), new ObjectMover(player.transform)))
 			.Add(new MovementSystem(new ObjectMover(player.transform), 2f))
+			.Add(new RotationSystem(new ObjectRotator(player.transform), 300f))
 			.Add(new FollowerSystem(new ObjectMover(camera), new ObjectMover(player.transform), 5f))
+			.Add(new AnimationStateCalculationSystem(new ObjectMover(player.transform)))
+			.Add(new AnimationStateUpdateSystem(new AnimatorStateUpdater(player.GetComponent<Animator>())))
 			.Init();
-		
 	}
 
 	private void Update()
@@ -41,12 +37,6 @@ public class EcsStartup : MonoBehaviour
 
 	private void OnDestroy()
 	{
-		if (_initSystem != null)
-		{
-			_initSystem.Destroy();
-			_initSystem = null;
-		}
-		
 		if (_updateSystem != null)
 		{
 			_updateSystem.Destroy();

@@ -2,5 +2,5 @@ using UnityEngine;
 
 public class StandaloneInput : IInputService
 {
-    public bool GetClick() => Input.GetMouseButtonUp(0);
+    public bool GetClick() => Input.GetMouseButtonDown(0);
 }

@@ -1,3 +1,4 @@
+using Components;
 using Leopotam.EcsLite;
 
 namespace Systems
@@ -9,8 +10,14 @@ namespace Systems
             var world = systems.GetWorld();
             var playerEntity = world.NewEntity();
             
-            var playerInputPool = world.GetPool<MovementComponent>();
-            playerInputPool.Add(playerEntity);
+            var playerMovementPool = world.GetPool<MovementComponent>();
+            playerMovementPool.Add(playerEntity);
+
+            var playerRotationPool = world.GetPool<RotationComponent>();
+            playerRotationPool.Add(playerEntity);
+
+            var playerAnimationPool = world.GetPool<AnimationComponent>();
+            playerAnimationPool.Add(playerEntity);
         }
     }
 }

@@ -1,3 +1,4 @@
+using Components;
 using Leopotam.EcsLite;
 using UnityEngine;
 
@@ -24,8 +25,10 @@ namespace Systems
                 ref var playerComponent = ref playerPool.Get(entity);
 
                 var currentPosition = _movableObject.GetPosition();
-                var newPosition =
-                    currentPosition + (playerComponent.destination - currentPosition) * Time.deltaTime * _moveSpeed;
+                var newPosition = 
+                    Vector3.MoveTowards(currentPosition, 
+                        currentPosition + (playerComponent.destination - currentPosition),
+                        Time.deltaTime * _moveSpeed);
                 
                 _movableObject.SetPosition(newPosition);
             }
