@@ -10,8 +10,17 @@ namespace Installers
         
         public override void InstallBindings()
         {
-            Container.Bind<EcsStartup>().FromNewComponentOn(_container).AsSingle().NonLazy();
+            Container.Bind<SceneData>().FromComponentInHierarchy().AsSingle();
             Container.BindInterfacesAndSelfTo<EcsWorld>().AsSingle();
+            Container.Bind<EcsStartup>().FromNewComponentOn(_container).AsSingle().NonLazy();
+            
+            CreateButtonsFactory();
+        }
+
+        private void CreateButtonsFactory()
+        {
+            var prefab = Resources.Load<Button>("Button");
+            Container.BindFactory<Button, ButtonsFactory>().FromComponentInNewPrefab(prefab).AsSingle();
         }
     }
 }

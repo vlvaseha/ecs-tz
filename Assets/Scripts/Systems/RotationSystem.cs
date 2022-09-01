@@ -25,8 +25,8 @@ namespace Systems
                 ref var playerComponent = ref playerPool.Get(entity);
 
                 var currentRotation = _objectRotator.GetRotation();
-                var newRotation = Quaternion.RotateTowards(currentRotation, playerComponent.targetRotation,
-                    _rotationSpeed * Time.deltaTime);
+                var newRotation = Quaternion.RotateTowards(currentRotation, 
+                    playerComponent.targetRotation,_rotationSpeed * Time.deltaTime);
                 
                 _objectRotator.SetRotation(newRotation);
             }

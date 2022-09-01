@@ -9,24 +9,31 @@ public class EcsStartup : MonoBehaviour
 
 	[Inject] private EcsWorld _world;
 	[Inject] private GameSettings _settings;
+	[Inject] private SceneData _sceneData;
 
 	private void Start()
 	{
-		_updateSystem = new EcsSystems(_world, "UpdateSystem");
+		_updateSystem = new EcsSystems(_world);
 
-		var camera = Camera.main.transform;
-		var player = GameObject.Find("X Bot");
-		player.transform.position = Vector3.zero;
+		var cameraTransform = _sceneData.CameraTransform;
+		var player = _sceneData.CreatePlayer();
+		
+		var playerRotator = new ObjectRotator(player.transform);
+		var playerMover = new ObjectMover(player.transform);
+		var cameraMover = new ObjectMover(cameraTransform);
+		var playerPositionCalculator = new PlayerPositionCalculator(_sceneData.Camera);
+		var playerInput = new StandaloneInput();
+		var animatorController = new AnimatorStateUpdater(player.GetComponent<Animator>());
 
 		_updateSystem
 			.Add(new PlayerInitSystem())
-			.Add(new InputSystem(new StandaloneInput()))
-			.Add(new PlayerPositionCalculationSystem(new PlayerPositionCalculator(Camera.main), new ObjectMover(player.transform)))
-			.Add(new MovementSystem(new ObjectMover(player.transform), 2f))
-			.Add(new RotationSystem(new ObjectRotator(player.transform), 300f))
-			.Add(new FollowerSystem(new ObjectMover(camera), new ObjectMover(player.transform), 5f))
-			.Add(new AnimationStateCalculationSystem(new ObjectMover(player.transform)))
-			.Add(new AnimationStateUpdateSystem(new AnimatorStateUpdater(player.GetComponent<Animator>())))
+			.Add(new InputSystem(playerInput))
+			.Add(new PlayerPositionCalculationSystem(playerPositionCalculator, playerMover))
+			.Add(new MovementSystem(playerMover, _settings.PlayerMoveSpeed))
+			.Add(new RotationSystem(playerRotator, _settings.PlayerRotationSpeed))
+			.Add(new FollowerSystem(cameraMover, playerMover, _settings.CameraFollowSmoothTime))
+			.Add(new AnimationStateCalculationSystem(playerMover))
+			.Add(new AnimationStateUpdateSystem(animatorController))
 			.Init();
 	}
 

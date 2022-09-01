@@ -13,5 +13,5 @@ MonoBehaviour:
   m_Name: SettingsInstaller
   m_EditorClassIdentifier: 
   _gameSettings:
-    _playerMoveSpeed: 5
-    _playerRotationSpeed: 5
+    _playerMoveSpeed: 2
+    _playerRotationSpeed: 300
