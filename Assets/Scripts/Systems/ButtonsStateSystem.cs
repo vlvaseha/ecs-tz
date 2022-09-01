@@ -21,12 +21,12 @@ namespace Systems
         public void Init(IEcsSystems systems)
         {
             var world = systems.GetWorld();
-            var buttonPool = world.GetPool<ButtonComponent>();
+            var buttonsPool = world.GetPool<ButtonComponent>();
 
             foreach (var button in _buttons)
             {
                 var buttonEntity = world.NewEntity();
-                buttonPool.Add(buttonEntity);
+                buttonsPool.Add(buttonEntity);
                 button.SetEntity(buttonEntity);
                 
                 _entityButtons.Add(buttonEntity, button);
@@ -35,13 +35,32 @@ namespace Systems
 
         public void Run(IEcsSystems systems)
         {
-            var ecsFilter = systems.GetWorld().Filter<ButtonComponent>().End();
-            var pool = systems.GetWorld().GetPool<ButtonComponent>();
+            var buttonsComponents = systems.GetWorld().Filter<ButtonComponent>().End();
+            var doorsComponents = systems.GetWorld().Filter<DoorComponent>().End();
+            var buttonsPool = systems.GetWorld().GetPool<ButtonComponent>();
+            var doorsPool = systems.GetWorld().GetPool<DoorComponent>();
 
-            foreach (var entity in ecsFilter)
+            foreach (var entity in buttonsComponents)
             {
-                var buttonComponent = pool.Get(entity);
+                var buttonComponent = buttonsPool.Get(entity);
                 UpdateButtonPressedState(buttonComponent.isPressed, entity);
+                TrySetDoorOpeningState(entity, buttonComponent.isPressed);
+                // if (TryGetDoorComponent(entity, out var doorComponent))
+                // doorComponent.isOpening = buttonComponent.isPressed;
+            }
+            
+            void TrySetDoorOpeningState(int buttonEntity, bool isButtonPressed)
+            {
+                foreach (var doorEntity in doorsComponents)
+                {
+                    ref var component = ref doorsPool.Get(doorEntity);
+                    // Debug.Log("compare: " + component.linkedButtonEntity + " " + buttonEntity);
+
+                    if (component.linkedButtonEntity == buttonEntity)
+                    {
+                        component.isOpening = isButtonPressed;
+                    }
+                }
             }
         }
 

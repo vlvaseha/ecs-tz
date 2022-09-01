@@ -17,6 +17,7 @@ public class SceneData : MonoBehaviour
     public Transform CameraTransform => _cameraTransform;
     public Camera Camera => _camera ??= _cameraTransform.GetComponentInChildren<Camera>();
     public IButton[] Buttons => _buttons;
+    public IMovable[] Doors { get; private set; }
 
     private void Awake()
     {
@@ -27,7 +28,9 @@ public class SceneData : MonoBehaviour
         }
 
         CreateButtons();
+        
         var colorProperty = Shader.PropertyToID("_Color");
+        Doors = new IMovable[_doors.Length];
 
         for (int i = 0; i < _buttons.Length; i++)
         {
@@ -35,6 +38,7 @@ public class SceneData : MonoBehaviour
 
             _buttons[i].SetColor(colorProperty, randomColor);
             _doors[i].GetComponent<MeshRenderer>().material.SetColor(colorProperty, randomColor);
+            Doors[i] = new ObjectMover(_doors[i]);
         }
     }
 

@@ -35,6 +35,7 @@ public class EcsStartup : MonoBehaviour
 			.Add(new AnimationStateCalculationSystem(playerMover))
 			.Add(new AnimationStateUpdateSystem(animatorController))
 			.Add(new ButtonsStateSystem(_sceneData.Buttons))
+			.Add(new DoorsSystem(_sceneData.Doors))
 			.Init();
 	}
 
