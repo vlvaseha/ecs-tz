@@ -11,11 +11,12 @@ public class SceneData : MonoBehaviour
 
     [Inject] private ButtonsFactory _buttonsFactory;
 
-    private Button[] _buttons;
+    private IButton[] _buttons;
     private Camera _camera;
 
     public Transform CameraTransform => _cameraTransform;
     public Camera Camera => _camera ??= _cameraTransform.GetComponentInChildren<Camera>();
+    public IButton[] Buttons => _buttons;
 
     private void Awake()
     {
@@ -32,7 +33,7 @@ public class SceneData : MonoBehaviour
         {
             var randomColor = Random.ColorHSV(0f, 1f, 1f, 1f, 0.5f, 1f);
 
-            _buttons[i].GetComponent<MeshRenderer>().material.SetColor(colorProperty, randomColor);
+            _buttons[i].SetColor(colorProperty, randomColor);
             _doors[i].GetComponent<MeshRenderer>().material.SetColor(colorProperty, randomColor);
         }
     }
@@ -48,7 +49,7 @@ public class SceneData : MonoBehaviour
 
     private void CreateButtons()
     {
-        _buttons = new Button[_buttonsRoot.Length];
+        _buttons = new IButton[_buttonsRoot.Length];
 
         for (int i = 0; i < _buttonsRoot.Length; i++)
         {

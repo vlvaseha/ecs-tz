@@ -34,6 +34,7 @@ public class EcsStartup : MonoBehaviour
 			.Add(new FollowerSystem(cameraMover, playerMover, _settings.CameraFollowSmoothTime))
 			.Add(new AnimationStateCalculationSystem(playerMover))
 			.Add(new AnimationStateUpdateSystem(animatorController))
+			.Add(new ButtonsStateSystem(_sceneData.Buttons))
 			.Init();
 	}
 
