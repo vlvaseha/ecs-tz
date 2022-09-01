@@ -1,4 +1,5 @@
 using Components;
+using Interfaces;
 using Leopotam.EcsLite;
 using UnityEngine;
 
@@ -7,11 +8,13 @@ namespace Systems
     public class MovementSystem : IEcsRunSystem
     {
         private readonly IMovable _movableObject;
+        private readonly ITimer _timer;
         private readonly float _moveSpeed;
         
-        public MovementSystem(IMovable movableObject, float moveSpeed)
+        public MovementSystem(IMovable movableObject, ITimer timer, float moveSpeed)
         {
             _movableObject = movableObject;
+            _timer = timer;
             _moveSpeed = moveSpeed;
         }
         
@@ -28,7 +31,7 @@ namespace Systems
                 var newPosition = 
                     Vector3.MoveTowards(currentPosition, 
                         currentPosition + (playerComponent.destination - currentPosition),
-                        Time.deltaTime * _moveSpeed);
+                        _timer.DeltaTime * _moveSpeed);
                 
                 _movableObject.SetPosition(newPosition);
             }

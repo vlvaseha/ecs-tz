@@ -1,8 +1,11 @@
 using UnityEngine;
 
-public interface IMovable
+namespace Interfaces
 {
-    void SetPosition(Vector3 position);
+    public interface IMovable
+    {
+        void SetPosition(Vector3 position);
 
-    Vector3 GetPosition();
+        Vector3 GetPosition();
+    }
 }

@@ -13,14 +13,14 @@ public class Button : MonoBehaviour, IButton
     {
         if(!other.CompareTag("Player")) return;
         
-        GetButtonComponent().isPressed = true;
+        SetButtonPressedState(true);
     }
 
     private void OnTriggerExit(Collider other)
     {
         if(!other.CompareTag("Player")) return;
         
-        GetButtonComponent().isPressed = false;
+        SetButtonPressedState(false);
     }
 
     public void SetPosition(Vector3 position) => transform.localPosition = position;
@@ -32,11 +32,14 @@ public class Button : MonoBehaviour, IButton
     public void SetColor(int property, Color color) => 
         GetComponent<MeshRenderer>().material.SetColor(property, color);
 
-    private ref ButtonComponent GetButtonComponent()
+    private void SetButtonPressedState(bool isPressed)
     {
         var pool = _ecsWorld.GetPool<ButtonComponent>();
-        ref var buttonComponent = ref pool.Get(_entity);
-
-        return ref buttonComponent;
+        
+        if (pool.Has(_entity))
+        {
+            ref var buttonComponent = ref pool.Get(_entity);
+            buttonComponent.isPressed = isPressed;
+        }
     }
 }

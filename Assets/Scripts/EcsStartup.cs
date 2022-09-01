@@ -25,18 +25,19 @@ public class EcsStartup : IInitializable, ITickable, IDisposable
 		var playerPositionCalculator = new PlayerPositionCalculator(_sceneData.Camera);
 		var playerInput = new StandaloneInput();
 		var animatorController = new AnimatorStateUpdater(player.GetComponent<Animator>());
+		var timer = new GameTimer();
 
 		_updateSystem
 			.Add(new PlayerInitSystem())
 			.Add(new InputSystem(playerInput))
 			.Add(new PlayerPositionCalculationSystem(playerPositionCalculator, playerMover))
-			.Add(new MovementSystem(playerMover, _settings.PlayerMoveSpeed))
-			.Add(new RotationSystem(playerRotator, _settings.PlayerRotationSpeed))
+			.Add(new MovementSystem(playerMover, timer, _settings.PlayerMoveSpeed))
+			.Add(new RotationSystem(playerRotator, timer, _settings.PlayerRotationSpeed))
 			.Add(new FollowerSystem(cameraMover, playerMover, _settings.CameraFollowSmoothTime))
-			.Add(new AnimationStateCalculationSystem(playerMover))
+			.Add(new AnimationStateCalculationSystem(playerMover, timer))
 			.Add(new AnimationStateUpdateSystem(animatorController))
-			.Add(new ButtonsStateSystem(_sceneData.Buttons))
-			.Add(new DoorsSystem(_sceneData.Doors))
+			.Add(new ButtonsStateSystem(_sceneData.Buttons, timer))
+			.Add(new DoorsSystem(_sceneData.Doors, timer))
 			.Init();
 	}
 

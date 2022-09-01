@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using Components;
+using Interfaces;
 using Leopotam.EcsLite;
 using UnityEngine;
 
@@ -8,13 +9,15 @@ namespace Systems
     public class ButtonsStateSystem : IEcsInitSystem, IEcsRunSystem
     {
         private const float PressForce = 15f;
-        
+
+        private readonly ITimer _timer;
         private readonly IButton[] _buttons;
         private readonly Dictionary<int, IButton> _entityButtons;
         
-        public ButtonsStateSystem(IButton[] buttons)
+        public ButtonsStateSystem(IButton[] buttons, ITimer timer)
         {
             _buttons = buttons;
+            _timer = timer;
             _entityButtons = new Dictionary<int, IButton>(_buttons.Length);
         }
         
@@ -43,23 +46,19 @@ namespace Systems
             foreach (var entity in buttonsComponents)
             {
                 var buttonComponent = buttonsPool.Get(entity);
+                
                 UpdateButtonPressedState(buttonComponent.isPressed, entity);
-                TrySetDoorOpeningState(entity, buttonComponent.isPressed);
-                // if (TryGetDoorComponent(entity, out var doorComponent))
-                // doorComponent.isOpening = buttonComponent.isPressed;
+                UpdateDoorOpeningState(entity, buttonComponent.isPressed);
             }
             
-            void TrySetDoorOpeningState(int buttonEntity, bool isButtonPressed)
+            void UpdateDoorOpeningState(int buttonEntity, bool isButtonPressed)
             {
                 foreach (var doorEntity in doorsComponents)
                 {
                     ref var component = ref doorsPool.Get(doorEntity);
-                    // Debug.Log("compare: " + component.linkedButtonEntity + " " + buttonEntity);
 
                     if (component.linkedButtonEntity == buttonEntity)
-                    {
                         component.isOpening = isButtonPressed;
-                    }
                 }
             }
         }
@@ -69,7 +68,7 @@ namespace Systems
             var targetPosition = isPressed ? -1.3f * Vector3.up : Vector3.zero;
             var button = _entityButtons[entity];
             var buttonPosition = Vector3.MoveTowards(button.GetPosition(), targetPosition, 
-                PressForce * Time.deltaTime);
+                PressForce * _timer.DeltaTime);
             button.SetPosition(buttonPosition);
         }
     }

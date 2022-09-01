@@ -1,4 +1,5 @@
 using Components;
+using Interfaces;
 using Leopotam.EcsLite;
 using UnityEngine;
 

@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using Components;
+using Interfaces;
 using Leopotam.EcsLite;
 using UnityEngine;
 
@@ -7,13 +8,15 @@ public class DoorsSystem : IEcsInitSystem, IEcsRunSystem
 {
     private const float HiddenDoorYPos = -3;
     private const float HidingSpeed = 1f;
-    
+
+    private readonly ITimer _timer;
     private readonly IMovable[] _doors;
     private readonly Dictionary<int, IMovable> _doorEntities;
 
-    public DoorsSystem(IMovable[] doors)
+    public DoorsSystem(IMovable[] doors, ITimer timer)
     {
         _doors = doors;
+        _timer = timer;
         _doorEntities = new Dictionary<int, IMovable>(doors.Length);
     }
     
@@ -32,6 +35,8 @@ public class DoorsSystem : IEcsInitSystem, IEcsRunSystem
         
         var doorsEntities = world.Filter<DoorComponent>().End();
         var buttonsEntities = GetButtonsEntities(world);
+        
+        if(buttonsEntities.Count == 0) return;
 
         var counter = 0;
         foreach (var entity in doorsEntities)
@@ -63,7 +68,7 @@ public class DoorsSystem : IEcsInitSystem, IEcsRunSystem
                 var doorCurrentPosition = door.GetPosition();
                 var doorTargetPosition = doorCurrentPosition + Vector3.up * HiddenDoorYPos;
                 var position = Vector3.MoveTowards(doorCurrentPosition, doorTargetPosition, 
-                        HidingSpeed * Time.deltaTime);
+                        HidingSpeed * _timer.DeltaTime);
                 
                 door.SetPosition(position);
             }
