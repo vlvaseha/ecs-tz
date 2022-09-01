@@ -1,9 +1,10 @@
+using System;
 using Systems;
 using Leopotam.EcsLite;
 using UnityEngine;
 using Zenject;
 
-public class EcsStartup : MonoBehaviour
+public class EcsStartup : IInitializable, ITickable, IDisposable
 { 
 	private IEcsSystems _updateSystem;
 
@@ -11,7 +12,7 @@ public class EcsStartup : MonoBehaviour
 	[Inject] private GameSettings _settings;
 	[Inject] private SceneData _sceneData;
 
-	private void Start()
+	public void Initialize()
 	{
 		_updateSystem = new EcsSystems(_world);
 
@@ -39,12 +40,12 @@ public class EcsStartup : MonoBehaviour
 			.Init();
 	}
 
-	private void Update()
+	public void Tick()
 	{
 		_updateSystem?.Run();
 	}
 
-	private void OnDestroy()
+	public void Dispose()
 	{
 		if (_updateSystem != null)
 		{

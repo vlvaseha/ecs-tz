@@ -8,7 +8,7 @@ public class PlayerPositionCalculator : IPlayerPositionCalculator
     public PlayerPositionCalculator(Camera camera)
     {
         _camera = camera;
-        _layerMask = ~(1 << 6);
+        _layerMask = ~(1 << 6 | 1 << 7);
     }
 
     public bool TryCalculate(out Vector3 position)
