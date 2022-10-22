@@ -12,9 +12,10 @@ namespace Systems
             
             if (!hasInput)
                 return;
-            
-            var onClickPool = systems.GetWorld().GetPool<OnClickedTag>();
-            onClickPool.Add(systems.GetWorld().NewEntity());
+
+            var world = systems.GetWorld();
+            var onClickPool = world.GetPool<OnClickedTag>();
+            onClickPool.Add(world.NewEntity());
         }
     }
 }

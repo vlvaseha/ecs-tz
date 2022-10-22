@@ -13,10 +13,8 @@ public class EcsStartup : IInitializable, ITickable, IDisposable
 
 	public void Initialize()
 	{
+		_sceneData.Initialize();
 		_updateSystem = new EcsSystems(_world);
-
-		_sceneData.SetupMainCharacter();
-		_sceneData.SetupCamera();
 
 		_updateSystem
 			.Add(new PlayerInitSystem())
@@ -27,6 +25,7 @@ public class EcsStartup : IInitializable, ITickable, IDisposable
 			.Add(GetSystemInjected<CameraFollowSystem>())
 			.Add(new AnimatorStateSystem())
 			.Add(new UpdateMovingAnimStateSystem())
+			.Add(new ButtonsStateControllerSystem())
 			// .Add(new ButtonsStateSystem(_sceneData.Buttons))
 			// .Add(new DoorsSystem())
 			.Init();

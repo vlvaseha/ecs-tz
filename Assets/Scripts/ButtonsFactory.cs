@@ -1,3 +1,4 @@
+using UnityEngine;
 using Zenject;
 
-public class ButtonsFactory : PlaceholderFactory<Button> { }
+public class ButtonsFactory : PlaceholderFactory<TransformLink> { }

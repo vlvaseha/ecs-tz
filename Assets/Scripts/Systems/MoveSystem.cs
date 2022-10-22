@@ -22,7 +22,7 @@ namespace Systems
 
             foreach (var clickedEntity in clickedFilter)
             {
-                systems.GetWorld().DelEntity(clickedEntity);
+                world.DelEntity(clickedEntity);
                 
                 if (_positionCalculator.TryHandleRaycast(out var position))
                 {

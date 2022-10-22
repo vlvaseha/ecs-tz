@@ -14,35 +14,16 @@ public class SceneData : MonoBehaviour
     [Inject] private ButtonsFactory _buttonsFactory;
     [Inject] private EcsWorld _world;
 
-    private Button[] _buttons;
     private Camera _camera;
 
-    public Transform CameraTransform => _cameraTransform;
     public Camera Camera => _camera ??= _cameraTransform.GetComponentInChildren<Camera>();
-    public Button[] Buttons => _buttons;
-    // public IMovable[] Doors { get; private set; }
 
     private void Awake()
     {
-        return;
         if (_buttonsRoot.Length != _doors.Length)
         {
             Debug.LogError("Count of buttons and doors must match!");
             return;
-        }
-
-        CreateButtons();
-        
-        var colorProperty = Shader.PropertyToID("_Color");
-        // Doors = new IMovable[_doors.Length];
-
-        for (int i = 0; i < _buttons.Length; i++)
-        {
-            var randomColor = Random.ColorHSV(0f, 1f, 1f, 1f, 0.5f, 1f);
-
-            _buttons[i].SetColor(colorProperty, randomColor);
-            _doors[i].GetComponent<MeshRenderer>().material.SetColor(colorProperty, randomColor);
-            // Doors[i] = new ObjectMover(_doors[i]);
         }
     }
 
@@ -54,8 +35,8 @@ public class SceneData : MonoBehaviour
 
         var links = player.GetComponents<MonoLinkBase>();
         var newEntity = _world.NewEntity();
-
         var mainCharacterPool = _world.GetPool<MainCharacterComponent>();
+        
         mainCharacterPool.Add(newEntity);
 
         foreach (var link in links)
@@ -81,17 +62,50 @@ public class SceneData : MonoBehaviour
         }
     }
 
+    public void Initialize()
+    {
+        SetupMainCharacter();
+        SetupCamera();
+        CreateButtons();
+    }
+
     private void CreateButtons()
     {
-        // _buttons = new IButton[_buttonsRoot.Length];
-
+        var colorProperty = Shader.PropertyToID("_Color");
+        var buttonsPool = _world.GetPool<ButtonComponent>();
+        var movementPool = _world.GetPool<MovementComponent>();
+        
         for (int i = 0; i < _buttonsRoot.Length; i++)
         {
             var button = _buttonsFactory.Create();
-            button.transform.SetParent(_buttonsRoot[i]);
-            button.transform.localPosition = Vector3.zero;
+            var buttonTransform = button.transform;
+            var buttonPosition = buttonTransform.position;
+            var buttonRenderer = buttonTransform.GetComponentInChildren<Renderer>();
             
-            _buttons[i] = button;
+            buttonTransform.SetParent(_buttonsRoot[i]);
+            buttonTransform.localPosition = Vector3.zero;
+            buttonRenderer.material.SetColor(colorProperty, GetRandomColor());
+            
+            SetupSceneObject(buttonTransform.gameObject, out var entity);
+            buttonsPool.Add(entity);
+            
+            ref var movementComponent = ref movementPool.Add(entity);
+            movementComponent.destination = buttonTransform.position;
+            movementComponent.currentPosition = buttonPosition;
         }
     }
+
+    private void SetupSceneObject(GameObject obj, out int entity)
+    {
+        var links = obj.GetComponents<MonoLinkBase>();
+        entity = _world.NewEntity();
+        
+        foreach (var link in links)
+        {
+            link.Make(ref entity, _world);
+        }
+    }
+    
+    private Color GetRandomColor() => 
+        Random.ColorHSV(0f, 1f, 1f, 1f, 0.5f, 1f);
 }

@@ -17,8 +17,8 @@ namespace Installers
 
         private void CreateButtonsFactory()
         {
-            var prefab = Resources.Load<Button>("Button");
-            Container.BindFactory<Button, ButtonsFactory>().FromComponentInNewPrefab(prefab).AsSingle();
+            var prefab = Resources.Load<TransformLink>("Button");
+            Container.BindFactory<TransformLink, ButtonsFactory>().FromComponentInNewPrefab(prefab).AsSingle();
         }
     }
 }
