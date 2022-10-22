@@ -1,10 +1,14 @@
+using Components;
 using UnityEngine;
 
-public class OnTriggerExitLink : PhysicsTriggerLink
+namespace MonoLinks
 {
-    public void OnTriggerExit(Collider other)
+    public class OnTriggerExitLink : PhysicsTriggerLink
     {
-        var triggeredPool = _world.GetPool<TriggeredComponent>();
-        triggeredPool.Del(_entity);
+        public void OnTriggerExit(Collider other)
+        {
+            var triggeredPool = _world.GetPool<TriggeredComponent>();
+            triggeredPool.Del(_entity);
+        }
     }
 }

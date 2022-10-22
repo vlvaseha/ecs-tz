@@ -1,1 +1,4 @@
-public struct TriggeredComponent { }
+namespace Components
+{
+    public struct TriggeredComponent { }
+}

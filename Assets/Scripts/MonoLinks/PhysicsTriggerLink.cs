@@ -1,13 +1,16 @@
 using Leopotam.EcsLite;
 
-public class PhysicsTriggerLink : MonoLinkBase
+namespace MonoLinks
 {
-    protected int _entity;
-    protected EcsWorld _world;
-
-    public override void Make(ref int entity, EcsWorld world)
+    public class PhysicsTriggerLink : MonoLinkBase
     {
-        _entity = entity;
-        _world = world;
+        protected int _entity;
+        protected EcsWorld _world;
+
+        public override void Make(ref int entity, EcsWorld world)
+        {
+            _entity = entity;
+            _world = world;
+        }
     }
 }

@@ -2,27 +2,30 @@ using Components;
 using Leopotam.EcsLite;
 using UnityEngine;
 
-public class UpdateMovingAnimStateSystem : IEcsRunSystem
+namespace Systems
 {
-    private static readonly int _animationHash = Animator.StringToHash("isWalking");
-    
-    public void Run(IEcsSystems systems)
+    public class UpdateMovingAnimStateSystem : IEcsRunSystem
     {
-        var world = systems.GetWorld();
-        
-        var filter = world.Filter<MovementStateComponent>()
-            .Inc<AnimatorComponent>()
-            .End();
-        
-        var animationPool = world.GetPool<MovementStateComponent>();
-        var animatorComponentsPool = world.GetPool<AnimatorComponent>();
-
-        foreach (var entity in filter)
+        private static readonly int _animationHash = Animator.StringToHash("isWalking");
+    
+        public void Run(IEcsSystems systems)
         {
-            ref var animationComponent = ref animationPool.Get(entity);
-            ref var animatorComponent = ref animatorComponentsPool.Get(entity);
+            var world = systems.GetWorld();
+        
+            var filter = world.Filter<MovementStateComponent>()
+                .Inc<AnimatorComponent>()
+                .End();
+        
+            var animationPool = world.GetPool<MovementStateComponent>();
+            var animatorComponentsPool = world.GetPool<AnimatorComponent>();
+
+            foreach (var entity in filter)
+            {
+                ref var animationComponent = ref animationPool.Get(entity);
+                ref var animatorComponent = ref animatorComponentsPool.Get(entity);
             
-            animatorComponent.animator.SetBool(_animationHash, animationComponent.isMoving);
+                animatorComponent.animator.SetBool(_animationHash, animationComponent.isMoving);
+            }
         }
     }
 }

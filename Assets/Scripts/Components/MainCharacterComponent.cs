@@ -1,1 +1,4 @@
-public struct MainCharacterComponent { }
+namespace Components
+{
+    public struct MainCharacterComponent { }
+}

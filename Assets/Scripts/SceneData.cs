@@ -1,22 +1,19 @@
 using Components;
 using Leopotam.EcsLite;
+using MonoLinks;
 using UnityEngine;
 using Zenject;
 
 public class SceneData : MonoBehaviour
 {
     [SerializeField] private Transform _spawnPlayerTransform;
-    [SerializeField] private Transform _cameraTransform;
     [Space]
     [SerializeField] private Transform[] _buttonsRoot;
     [SerializeField] private Transform[] _doors;
 
     [Inject] private ButtonsFactory _buttonsFactory;
     [Inject] private EcsWorld _world;
-
-    private Camera _camera;
-
-    public Camera Camera => _camera ??= _cameraTransform.GetComponentInChildren<Camera>();
+    [Inject] Camera _camera;
 
     private void Awake()
     {
@@ -27,7 +24,14 @@ public class SceneData : MonoBehaviour
         }
     }
 
-    public void SetupMainCharacter()
+    public void Initialize()
+    {
+        SetupMainCharacter();
+        SetupCamera();
+        CreateButtons();
+    }
+
+    private void SetupMainCharacter()
     {
         var prefab = Resources.Load<GameObject>("Character");
         var player = Instantiate(prefab, transform);
@@ -45,9 +49,9 @@ public class SceneData : MonoBehaviour
         }
     }
 
-    public void SetupCamera()
+    private void SetupCamera()
     {
-        var links = Camera.GetComponents<MonoLinkBase>();
+        var links = _camera.GetComponents<MonoLinkBase>();
         var newEntity = _world.NewEntity();
 
         var cameraPool = _world.GetPool<MainCameraComponent>();
@@ -60,13 +64,6 @@ public class SceneData : MonoBehaviour
         {
             link.Make(ref newEntity, _world);
         }
-    }
-
-    public void Initialize()
-    {
-        SetupMainCharacter();
-        SetupCamera();
-        CreateButtons();
     }
 
     private void CreateButtons()
@@ -92,7 +89,25 @@ public class SceneData : MonoBehaviour
             ref var movementComponent = ref movementPool.Add(entity);
             movementComponent.destination = buttonTransform.position;
             movementComponent.currentPosition = buttonPosition;
+
+            LinkButtonToDoor(entity, i);
         }
+    }
+
+    private void LinkButtonToDoor(int buttonEntity, int buttonIndex)
+    {
+        var door = _doors[buttonIndex];
+        var doorsPool = _world.GetPool<DoorComponent>();
+        var movementPool = _world.GetPool<MovementComponent>();
+        
+        SetupSceneObject(door.gameObject, out var doorEntity);
+
+        ref var doorComponent = ref doorsPool.Add(doorEntity);
+        ref var movementComponent = ref movementPool.Add(doorEntity);
+        
+        doorComponent.linkedButtonEntity = buttonEntity;
+        movementComponent.destination = door.position;
+        movementComponent.currentPosition = door.position;
     }
 
     private void SetupSceneObject(GameObject obj, out int entity)

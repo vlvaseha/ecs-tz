@@ -1,6 +1,9 @@
 using UnityEngine;
 
-public struct AnimatorComponent
+namespace Components
 {
-    public Animator animator;
+    public struct AnimatorComponent
+    {
+        public Animator animator;
+    }
 }

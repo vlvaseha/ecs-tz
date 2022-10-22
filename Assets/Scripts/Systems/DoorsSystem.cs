@@ -1,75 +1,49 @@
-using System.Collections.Generic;
 using Components;
 using Leopotam.EcsLite;
 using UnityEngine;
 
-public class DoorsSystem : IEcsInitSystem, IEcsRunSystem
+namespace Systems
 {
-    private const float HiddenDoorYPos = -3;
-    private const float HidingSpeed = 1f;
-
-    public void Init(IEcsSystems systems)
+    public class DoorsSystem : IEcsRunSystem
     {
-        var world = systems.GetWorld();
-        var doorsPool = world.GetPool<DoorComponent>();
-        //
-        // foreach (var door in _doors)
-        // {
-        //     var doorEntity = world.NewEntity();
-        //     doorsPool.Add(doorEntity);
-        //     
-        //     _doorEntities.Add(doorEntity, door);
-        // }
-        
-        var doorsEntities = world.Filter<DoorComponent>().End();
-        var buttonsEntities = GetButtonsEntities(world);
-        
-        if(buttonsEntities.Count == 0) return;
-
-        var counter = 0;
-        foreach (var entity in doorsEntities)
+        public void Run(IEcsSystems systems)
         {
-            ref var doorComponent = ref doorsPool.Get(entity);
-            doorComponent.linkedButtonEntity = buttonsEntities[counter];
-            doorComponent.doorEntity = entity;
+            var world = systems.GetWorld();
+            var buttonsFilter = world.Filter<ButtonComponent>().End();
+            var movementPool = world.GetPool<MovementComponent>();
+            var transformPool = world.GetPool<TransformComponent>();
 
-            counter++;
+            foreach (var entity in buttonsFilter)
+            {
+                var isPressed = IsButtonPressed(entity, world);
+                var linkedDoorEntity = FindDoorEntityBuButton(entity, world);
+                var doorTransformComponent = transformPool.Get(linkedDoorEntity);
 
-            if (counter >= buttonsEntities.Count)
-                counter--;
+                ref var movementComponent = ref movementPool.Get(linkedDoorEntity);
+                movementComponent.destination = isPressed
+                    ? doorTransformComponent.transform.parent.TransformPoint(-Vector3.up)
+                    : movementComponent.currentPosition;
+            }
         }
-    }
 
-    public void Run(IEcsSystems systems)
-    {
-        var world = systems.GetWorld();
-        var doorsEntities = world.Filter<DoorComponent>().End();
-        var doorsPool = world.GetPool<DoorComponent>();
-
-        foreach (var entity in doorsEntities)
+        private bool IsButtonPressed(int buttonEntity, EcsWorld world)
         {
-            var doorComponent = doorsPool.Get(entity);
-
-            // if (doorComponent.isOpening)
-            // {
-            //     var door = _doorEntities[doorComponent.doorEntity];
-            //     var doorCurrentPosition = door.GetPosition();
-            //     var doorTargetPosition = doorCurrentPosition + Vector3.up * HiddenDoorYPos;
-            //     var position = Vector3.MoveTowards(doorCurrentPosition, doorTargetPosition, 
-            //             HidingSpeed * _timer.DeltaTime);
-            //     
-            //     door.SetPosition(position);
-            // }
+            var buttonsPool = world.GetPool<ButtonComponent>();
+            return buttonsPool.Get(buttonEntity).isPressed;
         }
-    }
 
-    private List<int> GetButtonsEntities(EcsWorld world)
-    {
-        var list = new List<int>();
+        private int FindDoorEntityBuButton(int buttonEntity, EcsWorld world)
+        {
+            var doorsFilter = world.Filter<DoorComponent>().End();
+            var doorsPool = world.GetPool<DoorComponent>();
 
-        foreach (var entity in world.Filter<ButtonComponent>().End())
-            list.Add(entity);
-        
-        return list;
+            foreach (var doorEntity in doorsFilter)
+            {
+                if (doorsPool.Get(doorEntity).linkedButtonEntity == buttonEntity)
+                    return doorEntity;
+            }
+
+            return -1;
+        }
     }
 }

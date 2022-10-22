@@ -26,8 +26,7 @@ public class EcsStartup : IInitializable, ITickable, IDisposable
 			.Add(new AnimatorStateSystem())
 			.Add(new UpdateMovingAnimStateSystem())
 			.Add(new ButtonsStateControllerSystem())
-			// .Add(new ButtonsStateSystem(_sceneData.Buttons))
-			// .Add(new DoorsSystem())
+			.Add(new DoorsSystem())
 			.Init();
 	}
 

@@ -1,6 +1,9 @@
 using UnityEngine;
 
-public struct TransformComponent
+namespace Components
 {
-    public Transform transform;
+    public struct TransformComponent
+    {
+        public Transform transform;
+    }
 }

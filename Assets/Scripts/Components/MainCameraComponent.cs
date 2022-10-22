@@ -1,1 +1,4 @@
-public struct MainCameraComponent { }
+namespace Components
+{
+    public struct MainCameraComponent { }
+}

@@ -1,10 +1,14 @@
+using Components;
 using UnityEngine;
 
-public class OnTriggerEnterLink : PhysicsTriggerLink
+namespace MonoLinks
 {
-    private void OnTriggerEnter(Collider other)
+    public class OnTriggerEnterLink : PhysicsTriggerLink
     {
-        var triggeredPool = _world.GetPool<TriggeredComponent>();
-        triggeredPool.Add(_entity);
+        private void OnTriggerEnter(Collider other)
+        {
+            var triggeredPool = _world.GetPool<TriggeredComponent>();
+            triggeredPool.Add(_entity);
+        }
     }
 }
