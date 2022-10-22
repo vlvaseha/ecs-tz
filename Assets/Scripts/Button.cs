@@ -3,7 +3,7 @@ using Leopotam.EcsLite;
 using UnityEngine;
 using Zenject;
 
-public class Button : MonoBehaviour, IButton
+public class Button : MonoBehaviour
 {
     private int _entity;
     

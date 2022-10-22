@@ -8,16 +8,18 @@ namespace Systems
         public void Init(IEcsSystems systems)
         {
             var world = systems.GetWorld();
-            var playerEntity = world.NewEntity();
+            var filter = world.Filter<MainCharacterComponent>().End();
+
+            foreach (var playerEntity in filter)
+            {
+                var playerMovementPool = world.GetPool<MovementComponent>();
+                var playerRotationPool = world.GetPool<RotationComponent>();
+                var playerAnimationPool = world.GetPool<MovementStateComponent>();
             
-            var playerMovementPool = world.GetPool<MovementComponent>();
-            playerMovementPool.Add(playerEntity);
-
-            var playerRotationPool = world.GetPool<RotationComponent>();
-            playerRotationPool.Add(playerEntity);
-
-            var playerAnimationPool = world.GetPool<AnimationComponent>();
-            playerAnimationPool.Add(playerEntity);
+                playerMovementPool.Add(playerEntity);
+                playerRotationPool.Add(playerEntity);
+                playerAnimationPool.Add(playerEntity);
+            }
         }
     }
 }

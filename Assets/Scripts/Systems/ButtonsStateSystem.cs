@@ -1,6 +1,5 @@
 using System.Collections.Generic;
 using Components;
-using Interfaces;
 using Leopotam.EcsLite;
 using UnityEngine;
 
@@ -10,15 +9,13 @@ namespace Systems
     {
         private const float PressForce = 15f;
 
-        private readonly ITimer _timer;
-        private readonly IButton[] _buttons;
-        private readonly Dictionary<int, IButton> _entityButtons;
+        private readonly Button[] _buttons;
+        private readonly Dictionary<int, Button> _entityButtons;
         
-        public ButtonsStateSystem(IButton[] buttons, ITimer timer)
+        public ButtonsStateSystem(Button[] buttons)
         {
             _buttons = buttons;
-            _timer = timer;
-            _entityButtons = new Dictionary<int, IButton>(_buttons.Length);
+            _entityButtons = new Dictionary<int, Button>(_buttons.Length);
         }
         
         public void Init(IEcsSystems systems)
@@ -65,10 +62,11 @@ namespace Systems
 
         private void UpdateButtonPressedState(bool isPressed, int entity)
         {
+            var deltaTime = Time.deltaTime;
             var targetPosition = isPressed ? -1.3f * Vector3.up : Vector3.zero;
             var button = _entityButtons[entity];
             var buttonPosition = Vector3.MoveTowards(button.GetPosition(), targetPosition, 
-                PressForce * _timer.DeltaTime);
+                PressForce * deltaTime);
             button.SetPosition(buttonPosition);
         }
     }

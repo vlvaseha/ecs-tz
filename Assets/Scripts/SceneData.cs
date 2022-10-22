@@ -1,4 +1,5 @@
-using Interfaces;
+using Components;
+using Leopotam.EcsLite;
 using UnityEngine;
 using Zenject;
 
@@ -11,17 +12,19 @@ public class SceneData : MonoBehaviour
     [SerializeField] private Transform[] _doors;
 
     [Inject] private ButtonsFactory _buttonsFactory;
+    [Inject] private EcsWorld _world;
 
-    private IButton[] _buttons;
+    private Button[] _buttons;
     private Camera _camera;
 
     public Transform CameraTransform => _cameraTransform;
     public Camera Camera => _camera ??= _cameraTransform.GetComponentInChildren<Camera>();
-    public IButton[] Buttons => _buttons;
-    public IMovable[] Doors { get; private set; }
+    public Button[] Buttons => _buttons;
+    // public IMovable[] Doors { get; private set; }
 
     private void Awake()
     {
+        return;
         if (_buttonsRoot.Length != _doors.Length)
         {
             Debug.LogError("Count of buttons and doors must match!");
@@ -31,7 +34,7 @@ public class SceneData : MonoBehaviour
         CreateButtons();
         
         var colorProperty = Shader.PropertyToID("_Color");
-        Doors = new IMovable[_doors.Length];
+        // Doors = new IMovable[_doors.Length];
 
         for (int i = 0; i < _buttons.Length; i++)
         {
@@ -39,22 +42,48 @@ public class SceneData : MonoBehaviour
 
             _buttons[i].SetColor(colorProperty, randomColor);
             _doors[i].GetComponent<MeshRenderer>().material.SetColor(colorProperty, randomColor);
-            Doors[i] = new ObjectMover(_doors[i]);
+            // Doors[i] = new ObjectMover(_doors[i]);
         }
     }
 
-    public GameObject CreatePlayer()
+    public void SetupMainCharacter()
     {
         var prefab = Resources.Load<GameObject>("Character");
         var player = Instantiate(prefab, transform);
         player.transform.SetPositionAndRotation(_spawnPlayerTransform.position, _spawnPlayerTransform.rotation);
 
-        return player;
+        var links = player.GetComponents<MonoLinkBase>();
+        var newEntity = _world.NewEntity();
+
+        var mainCharacterPool = _world.GetPool<MainCharacterComponent>();
+        mainCharacterPool.Add(newEntity);
+
+        foreach (var link in links)
+        {
+            link.Make(ref newEntity, _world);
+        }
+    }
+
+    public void SetupCamera()
+    {
+        var links = Camera.GetComponents<MonoLinkBase>();
+        var newEntity = _world.NewEntity();
+
+        var cameraPool = _world.GetPool<MainCameraComponent>();
+        var movementComponent = _world.GetPool<MovementComponent>();
+        
+        cameraPool.Add(newEntity);
+        movementComponent.Add(newEntity);
+
+        foreach (var link in links)
+        {
+            link.Make(ref newEntity, _world);
+        }
     }
 
     private void CreateButtons()
     {
-        _buttons = new IButton[_buttonsRoot.Length];
+        // _buttons = new IButton[_buttonsRoot.Length];
 
         for (int i = 0; i < _buttonsRoot.Length; i++)
         {

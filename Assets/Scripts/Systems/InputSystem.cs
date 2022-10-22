@@ -1,24 +1,20 @@
 using Components;
 using Leopotam.EcsLite;
+using UnityEngine;
 
 namespace Systems
 {
     public class InputSystem : IEcsRunSystem
     {
-        private readonly IInputService _inputService;
-        
-        public InputSystem(IInputService inputService)
-        {
-            _inputService = inputService;
-        }
-
         public void Run(IEcsSystems systems)
         {
-            if (_inputService.GetClick())
-            {
-                var onClickPool = systems.GetWorld().GetPool<OnClickedTag>();
-                onClickPool.Add(systems.GetWorld().NewEntity());
-            }
+            var hasInput = Input.GetMouseButton(0);
+            
+            if (!hasInput)
+                return;
+            
+            var onClickPool = systems.GetWorld().GetPool<OnClickedTag>();
+            onClickPool.Add(systems.GetWorld().NewEntity());
         }
     }
 }

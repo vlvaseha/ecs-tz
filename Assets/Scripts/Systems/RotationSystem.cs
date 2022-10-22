@@ -1,37 +1,38 @@
 using Components;
-using Interfaces;
 using Leopotam.EcsLite;
 using UnityEngine;
+using Zenject;
 
 namespace Systems
 {
     public class RotationSystem : IEcsRunSystem
     {
-        private readonly IRotatable _objectRotator;
-        private readonly ITimer _timer;
-        private readonly float _rotationSpeed;
-    
-        public RotationSystem(IRotatable objectRotator, ITimer timer,  float rotationSpeed)
-        {
-            _objectRotator = objectRotator;
-            _timer = timer;
-            _rotationSpeed = rotationSpeed;
-        }
+        [Inject] private GameSettings _gameSettings;
 
         public void Run(IEcsSystems systems)
         {
-            var filter = systems.GetWorld().Filter<RotationComponent>().End();
-            var playerPool = systems.GetWorld().GetPool<RotationComponent>();
+            var deltaTime = Time.deltaTime;
+            var world = systems.GetWorld();
+            
+            var filter = systems.GetWorld().Filter<TransformComponent>()
+                .Inc<RotationComponent>()
+                .End();
+            
+            var rotationComponentPool = systems.GetWorld().GetPool<RotationComponent>();
+            var transformsPool = world.GetPool<TransformComponent>();
 
             foreach (var entity in filter)
             {
-                ref var playerComponent = ref playerPool.Get(entity);
+                ref var rotationComponent = ref rotationComponentPool.Get(entity);
+                ref var transformComponent = ref transformsPool.Get(entity);
 
-                var currentRotation = _objectRotator.GetRotation();
+                rotationComponent.currentRotation = transformComponent.transform.rotation;
+
+                var currentRotation = rotationComponent.currentRotation;
                 var newRotation = Quaternion.RotateTowards(currentRotation, 
-                    playerComponent.targetRotation,_rotationSpeed * _timer.DeltaTime);
+                    rotationComponent.targetRotation,_gameSettings.PlayerRotationSpeed * deltaTime);
                 
-                _objectRotator.SetRotation(newRotation);
+                transformComponent.transform.rotation = newRotation;
             }
         }
     }

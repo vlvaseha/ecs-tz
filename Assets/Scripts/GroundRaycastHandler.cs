@@ -1,17 +1,17 @@
 using UnityEngine;
 
-public class PlayerPositionCalculator : IPlayerPositionCalculator
+public class GroundRaycastHandler
 {
     private readonly Camera _camera;
     private readonly int _layerMask;
 
-    public PlayerPositionCalculator(Camera camera)
+    public GroundRaycastHandler(Camera camera)
     {
         _camera = camera;
         _layerMask = ~(1 << 6 | 1 << 7);
     }
 
-    public bool TryCalculate(out Vector3 position)
+    public bool TryHandleRaycast(out Vector3 position)
     {
         var ray = _camera.ScreenPointToRay(Input.mousePosition);
 

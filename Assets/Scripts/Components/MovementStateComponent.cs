@@ -1,6 +1,6 @@
 namespace Components
 {
-    public struct AnimationComponent
+    public struct MovementStateComponent
     {
         public bool isMoving;
     }

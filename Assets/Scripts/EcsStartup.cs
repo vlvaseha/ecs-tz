@@ -1,7 +1,6 @@
 using System;
 using Systems;
 using Leopotam.EcsLite;
-using UnityEngine;
 using Zenject;
 
 public class EcsStartup : IInitializable, ITickable, IDisposable
@@ -9,35 +8,27 @@ public class EcsStartup : IInitializable, ITickable, IDisposable
 	private IEcsSystems _updateSystem;
 
 	[Inject] private EcsWorld _world;
-	[Inject] private GameSettings _settings;
 	[Inject] private SceneData _sceneData;
+	[Inject] private DiContainer _diContainer;
 
 	public void Initialize()
 	{
 		_updateSystem = new EcsSystems(_world);
 
-		var cameraTransform = _sceneData.CameraTransform;
-		var player = _sceneData.CreatePlayer();
-		
-		var playerRotator = new ObjectRotator(player.transform);
-		var playerMover = new ObjectMover(player.transform);
-		var cameraMover = new ObjectMover(cameraTransform);
-		var playerPositionCalculator = new PlayerPositionCalculator(_sceneData.Camera);
-		var playerInput = new StandaloneInput();
-		var animatorController = new AnimatorStateUpdater(player.GetComponent<Animator>());
-		var timer = new GameTimer();
+		_sceneData.SetupMainCharacter();
+		_sceneData.SetupCamera();
 
 		_updateSystem
 			.Add(new PlayerInitSystem())
-			.Add(new InputSystem(playerInput))
-			.Add(new PlayerPositionCalculationSystem(playerPositionCalculator, playerMover))
-			.Add(new MovementSystem(playerMover, timer, _settings.PlayerMoveSpeed))
-			.Add(new RotationSystem(playerRotator, timer, _settings.PlayerRotationSpeed))
-			.Add(new FollowerSystem(cameraMover, playerMover, _settings.CameraFollowSmoothTime))
-			.Add(new AnimationStateCalculationSystem(playerMover, timer))
-			.Add(new AnimationStateUpdateSystem(animatorController))
-			.Add(new ButtonsStateSystem(_sceneData.Buttons, timer))
-			.Add(new DoorsSystem(_sceneData.Doors, timer))
+			.Add(new InputSystem())
+			.Add(GetSystemInjected<MoveSystem>())
+			.Add(GetSystemInjected<MotionSystem>())
+			.Add(GetSystemInjected<RotationSystem>())
+			.Add(GetSystemInjected<CameraFollowSystem>())
+			.Add(new AnimatorStateSystem())
+			.Add(new UpdateMovingAnimStateSystem())
+			// .Add(new ButtonsStateSystem(_sceneData.Buttons))
+			// .Add(new DoorsSystem())
 			.Init();
 	}
 
@@ -59,5 +50,13 @@ public class EcsStartup : IInitializable, ITickable, IDisposable
 			_world.Destroy();
 			_world = null;
 		}
+	}
+	
+	private T GetSystemInjected<T>() where T : class, new()
+	{
+		var obj = new T();
+		_diContainer.Inject(obj);
+
+		return obj;
 	}
 }
