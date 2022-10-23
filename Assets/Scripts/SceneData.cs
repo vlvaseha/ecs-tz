@@ -39,9 +39,16 @@ public class SceneData : MonoBehaviour
 
         var links = player.GetComponents<MonoLinkBase>();
         var newEntity = _world.NewEntity();
-        var mainCharacterPool = _world.GetPool<MainCharacterComponent>();
         
+        var mainCharacterPool = _world.GetPool<MainCharacterComponent>();
+        var playerMovementPool = _world.GetPool<MovementComponent>();
+        var playerRotationPool = _world.GetPool<RotationComponent>();
+        var playerAnimationPool = _world.GetPool<MovementStateComponent>();
+            
         mainCharacterPool.Add(newEntity);
+        playerMovementPool.Add(newEntity);
+        playerRotationPool.Add(newEntity);
+        playerAnimationPool.Add(newEntity);
 
         foreach (var link in links)
         {

@@ -5,11 +5,11 @@ using Zenject;
 
 public class EcsStartup : IInitializable, ITickable, IDisposable
 { 
-	private IEcsSystems _updateSystem;
-
 	[Inject] private EcsWorld _world;
 	[Inject] private SceneData _sceneData;
 	[Inject] private DiContainer _diContainer;
+	
+	private IEcsSystems _updateSystem;
 
 	public void Initialize()
 	{
@@ -17,12 +17,11 @@ public class EcsStartup : IInitializable, ITickable, IDisposable
 		_updateSystem = new EcsSystems(_world);
 
 		_updateSystem
-			.Add(new PlayerInitSystem())
-			.Add(new InputSystem())
 			.Add(GetSystemInjected<MoveSystem>())
 			.Add(GetSystemInjected<MotionSystem>())
 			.Add(GetSystemInjected<RotationSystem>())
 			.Add(GetSystemInjected<CameraFollowSystem>())
+			.Add(new InputSystem())
 			.Add(new AnimatorStateSystem())
 			.Add(new UpdateMovingAnimStateSystem())
 			.Add(new ButtonsStateControllerSystem())
