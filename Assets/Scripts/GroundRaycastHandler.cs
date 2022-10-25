@@ -1,13 +1,13 @@
 using UnityEngine;
+using Zenject;
 
 public class GroundRaycastHandler
 {
-    private readonly Camera _camera;
+    [Inject] private readonly Camera _camera;
     private readonly int _layerMask;
 
-    public GroundRaycastHandler(Camera camera)
+    public GroundRaycastHandler()
     {
-        _camera = camera;
         _layerMask = ~(1 << 6 | 1 << 7);
     }
 

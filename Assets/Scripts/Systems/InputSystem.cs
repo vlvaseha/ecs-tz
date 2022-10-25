@@ -1,14 +1,17 @@
 using Components;
 using Leopotam.EcsLite;
-using UnityEngine;
+using Services;
+using Zenject;
 
 namespace Systems
 {
     public class InputSystem : IEcsRunSystem
     {
+        [Inject] private InputService _inputService;
+        
         public void Run(IEcsSystems systems)
         {
-            var hasInput = Input.GetMouseButton(0);
+            var hasInput = _inputService.GetClick();
             
             if (!hasInput)
                 return;

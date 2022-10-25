@@ -43,15 +43,15 @@ namespace Systems
         private Vector3 GetPosition<T>(EcsWorld world) where T : struct
         {
             var filter = world.Filter<T>()
-                .Inc<TransformComponent>()
+                .Inc<MovementComponent>()
                 .End();
             
-            var transformsPool = world.GetPool<TransformComponent>();
+            var movementPool = world.GetPool<MovementComponent>();
 
             foreach (var entity in filter)
             {
-                ref var transformComponent = ref transformsPool.Get(entity);
-                return transformComponent.transform.position;
+                ref var transformComponent = ref movementPool.Get(entity);
+                return transformComponent.currentPosition;
             }
             
             return Vector3.zero;

@@ -13,14 +13,13 @@ public class SceneData : MonoBehaviour
 
     [Inject] private ButtonsFactory _buttonsFactory;
     [Inject] private EcsWorld _world;
-    [Inject] Camera _camera;
+    [Inject] private Camera _camera;
 
     private void Awake()
     {
         if (_buttonsRoot.Length != _doors.Length)
         {
             Debug.LogError("Count of buttons and doors must match!");
-            return;
         }
     }
 
@@ -78,43 +77,64 @@ public class SceneData : MonoBehaviour
         var colorProperty = Shader.PropertyToID("_Color");
         var buttonsPool = _world.GetPool<ButtonComponent>();
         var movementPool = _world.GetPool<MovementComponent>();
+        var pressedStatePool = _world.GetPool<PressedStateComponent>();
         
         for (int i = 0; i < _buttonsRoot.Length; i++)
         {
             var button = _buttonsFactory.Create();
-            var buttonTransform = button.transform;
-            var buttonPosition = buttonTransform.position;
+
+            SetupTransformAndColor(button.transform, i);
+            SetupSceneObject(button.gameObject, out var entity);
+            SetupButtonComponents(entity, button.transform);
+            LinkButtonToDoor(entity, i);
+        }
+
+        void SetupTransformAndColor(Transform buttonTransform, int buttonIndex)
+        {
             var buttonRenderer = buttonTransform.GetComponentInChildren<Renderer>();
             
-            buttonTransform.SetParent(_buttonsRoot[i]);
+            buttonTransform.SetParent(_buttonsRoot[buttonIndex]);
             buttonTransform.localPosition = Vector3.zero;
             buttonRenderer.material.SetColor(colorProperty, GetRandomColor());
-            
-            SetupSceneObject(buttonTransform.gameObject, out var entity);
+        }
+
+        void SetupButtonComponents(int entity, Transform buttonTransform)
+        {
             buttonsPool.Add(entity);
             
             ref var movementComponent = ref movementPool.Add(entity);
-            movementComponent.destination = buttonTransform.position;
-            movementComponent.currentPosition = buttonPosition;
+            ref var pressedComponent = ref pressedStatePool.Add(entity);
+            var buttonRoot = buttonTransform.parent;
 
-            LinkButtonToDoor(entity, i);
+            movementComponent.destination = buttonRoot.TransformPoint(Vector3.zero);
+            movementComponent.currentPosition = movementComponent.destination;
+            
+            pressedComponent.defaultPosition = movementComponent.destination;
+            pressedComponent.pressedPosition = buttonRoot.TransformPoint(Vector3.up * -.95f);
         }
     }
 
     private void LinkButtonToDoor(int buttonEntity, int buttonIndex)
     {
         var door = _doors[buttonIndex];
+        var doorRoot = door.parent;
+        
         var doorsPool = _world.GetPool<DoorComponent>();
         var movementPool = _world.GetPool<MovementComponent>();
+        var pressedStatePool = _world.GetPool<PressedStateComponent>();
         
         SetupSceneObject(door.gameObject, out var doorEntity);
 
         ref var doorComponent = ref doorsPool.Add(doorEntity);
         ref var movementComponent = ref movementPool.Add(doorEntity);
+        ref var pressedStateComponent = ref pressedStatePool.Add(doorEntity);
         
         doorComponent.linkedButtonEntity = buttonEntity;
         movementComponent.destination = door.position;
         movementComponent.currentPosition = door.position;
+
+        pressedStateComponent.defaultPosition = doorRoot.TransformPoint(Vector3.zero);
+        pressedStateComponent.pressedPosition = doorRoot.TransformPoint(-Vector3.up);
     }
 
     private void SetupSceneObject(GameObject obj, out int entity)

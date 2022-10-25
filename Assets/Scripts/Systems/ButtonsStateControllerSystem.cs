@@ -1,6 +1,5 @@
 using Components;
 using Leopotam.EcsLite;
-using UnityEngine;
 
 namespace Systems
 {
@@ -9,14 +8,12 @@ namespace Systems
         public void Run(IEcsSystems systems)
         {
             var world = systems.GetWorld();
-            var buttonsFilter = world.Filter<ButtonComponent>()
-                .Inc<TransformComponent>()
-                .End();
-        
+            var buttonsFilter = world.Filter<ButtonComponent>().End();
             var triggers = world.Filter<TriggeredComponent>().End();
+            
             var buttonsPool = world.GetPool<ButtonComponent>();
-            var transformsPool = world.GetPool<TransformComponent>();
             var movementPool = world.GetPool<MovementComponent>();
+            var pressedStatePool = world.GetPool<PressedStateComponent>();
 
             foreach (var buttonEntity in buttonsFilter)
             {
@@ -25,15 +22,13 @@ namespace Systems
 
                 ref var buttonComponent = ref buttonsPool.Get(entity);
                 buttonComponent.isPressed = isTriggered;
-
-                ref var transformComponent = ref transformsPool.Get(entity);
+                
+                ref var pressedStateComponent = ref pressedStatePool.Get(entity);
                 ref var movementComponent = ref movementPool.Get(entity);
-
-                var buttonRoot = transformComponent.transform.parent;
-                movementComponent.currentPosition = transformComponent.transform.position;
+                
                 movementComponent.destination = isTriggered
-                    ? buttonRoot.TransformPoint(Vector3.up * -.95f)
-                    : buttonRoot.TransformPoint(Vector3.zero);
+                    ? pressedStateComponent.pressedPosition
+                    : pressedStateComponent.defaultPosition;
             }
         }
 

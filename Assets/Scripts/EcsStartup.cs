@@ -21,9 +21,8 @@ public class EcsStartup : IInitializable, ITickable, IDisposable
 			.Add(GetSystemInjected<MotionSystem>())
 			.Add(GetSystemInjected<RotationSystem>())
 			.Add(GetSystemInjected<CameraFollowSystem>())
-			.Add(new InputSystem())
+			.Add(GetSystemInjected<InputSystem>())
 			.Add(new AnimatorStateSystem())
-			.Add(new UpdateMovingAnimStateSystem())
 			.Add(new ButtonsStateControllerSystem())
 			.Add(new DoorsSystem())
 			.Init();

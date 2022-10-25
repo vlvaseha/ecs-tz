@@ -1,5 +1,6 @@
 using Leopotam.EcsLite;
 using MonoLinks;
+using Services;
 using UnityEngine;
 using Zenject;
 
@@ -12,6 +13,9 @@ namespace Installers
             Container.Bind<SceneData>().FromComponentInHierarchy().AsSingle();
             Container.Bind<EcsWorld>().AsSingle();
             Container.BindInterfacesAndSelfTo<EcsStartup>().AsSingle().NonLazy();
+            Container.Bind<TimeService>().AsSingle();
+            Container.Bind<InputService>().AsSingle();
+            Container.Bind<GroundRaycastHandler>().AsSingle();
             
             CreateButtonsFactory();
         }

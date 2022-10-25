@@ -1,6 +1,5 @@
 using Components;
 using Leopotam.EcsLite;
-using UnityEngine;
 
 namespace Systems
 {
@@ -11,17 +10,17 @@ namespace Systems
             var world = systems.GetWorld();
             var buttonsFilter = world.Filter<ButtonComponent>().End();
             var movementPool = world.GetPool<MovementComponent>();
-            var transformPool = world.GetPool<TransformComponent>();
+            var pressedPool = world.GetPool<PressedStateComponent>();
 
             foreach (var entity in buttonsFilter)
             {
                 var isPressed = IsButtonPressed(entity, world);
                 var linkedDoorEntity = FindDoorEntityBuButton(entity, world);
-                var doorTransformComponent = transformPool.Get(linkedDoorEntity);
+                var pressedComponent = pressedPool.Get(linkedDoorEntity);
 
                 ref var movementComponent = ref movementPool.Get(linkedDoorEntity);
                 movementComponent.destination = isPressed
-                    ? doorTransformComponent.transform.parent.TransformPoint(-Vector3.up)
+                    ? pressedComponent.pressedPosition
                     : movementComponent.currentPosition;
             }
         }

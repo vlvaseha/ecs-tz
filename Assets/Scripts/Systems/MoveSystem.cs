@@ -5,15 +5,9 @@ using Zenject;
 
 namespace Systems
 {
-    public class MoveSystem : IEcsRunSystem, IEcsInitSystem
+    public class MoveSystem : IEcsRunSystem
     {
-        [Inject] private Camera _camera;
-        private GroundRaycastHandler _positionCalculator;
-
-        public void Init(IEcsSystems systems)
-        {
-            _positionCalculator = new GroundRaycastHandler(_camera);
-        }
+        [Inject] private GroundRaycastHandler _positionCalculator;
 
         public void Run(IEcsSystems systems)
         {
