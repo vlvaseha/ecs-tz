@@ -4,13 +4,11 @@
     5-6 часов потрачено на ресерч по теме ECS
     
     
-#2  PlayerInitSystem
-    PlayerPositionCalculationSystem
-    AnimationStateCalculationSystem
-    AnimationStateUpdateSystem
-    ButtonsStateSystem
+#2  AnimatorStateSystem
+    ButtonsStateControllerSystem
+    CameraFollowSystem
     DoorsSystem
-    FollowerSystem
     InputSystem
-    MovementSystem
+    MotionSystem
+    MoveSystem
     RotationSystem
